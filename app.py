@@ -12,6 +12,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 @app.route('/process-pdf', methods=['POST'])
 def process_pdf():
+    template_file = request.form.get('template')
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
 
@@ -25,9 +26,13 @@ def process_pdf():
         file.save(file_path)
         
         try:
+            # if template_file:
+            #     template_content = json.load(template_file)
+            # else:
+            #     template_content = {}
+                
             processor = PDFProcessor(file_path)
-            # Template'i boş dict olarak gönder
-            result = processor.extract_data({})
+            result = processor.extract_data(template_file)
             os.remove(file_path)
             return jsonify(result)
         except Exception as e:
