@@ -9,7 +9,7 @@ class PDFProcessor:
         #print("template", template_content)
         text = self._extract_text_from_pdf()
         print("Extracted Text:", text)  # Debug için
-        return self._process_lines2(text)
+        return self._process_lines2(text, template_content)
 
     def _extract_text_from_pdf(self):
         try:
@@ -22,13 +22,11 @@ class PDFProcessor:
             print(f"PDF okuma hatası: {str(e)}")
             raise
 
-    def _process_lines2(self, text):
+    def _process_lines2(self, text, template_content):
         result = []
-        # İki metin arasındaki verileri al
-        match = re.search(r'Valuation Date(.*?)Natixis may use', text, re.DOTALL)
-        # match = re.search(r'These prices are indicative only(.*?)VALUATION DISCLAIMER', text, re.DOTALL)
-        # match = re.search(r'Description(.*?)Page 2 of 2', text, re.DOTALL)
-        # match = re.search(r'CUSIP/ISIN(.*?)IMPORTANT EXPLANATION', text, re.DOTALL)
+        if not template_content:
+            return False
+        match = re.search(template_content, text, re.DOTALL)
         if match:
             content = match.group(1).strip()
             # Satırları böl
