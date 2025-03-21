@@ -8,7 +8,6 @@ class PDFProcessor:
     def extract_data(self, template_content):
         #print("template", template_content)
         text = self._extract_text_from_pdf()
-        print("Extracted Text:", text)  # Debug için
         return self._process_lines2(text, template_content)
 
     def _extract_text_from_pdf(self):
@@ -34,18 +33,22 @@ class PDFProcessor:
         
             for line in lines:
                 print("line", line)
+                ticker_match = re.search(r'(\w+)\s+(\d{4}-\d+[A-Z]?)\s+([A-Z0-9]+)', line)
                 # ISIN (US ile başlayan 12 karakter)
                 isin_match = re.search(r'(US\w{10})', line)
                 # CUSIP (9 karakter veya BCC ile başlayan)
                 cusip_match = re.search(r'(?:^|\s)([A-Z0-9]{9}|BCC[A-Z0-9]{6})(?:\s|$)', line)
                 # Price (sondaki sayısal değer)
-                price_match = re.search(r'(\d+\.\d{3})', line)
+                price_match = re.search(r'(\d+\.\d{1,5})', line)
+                if price_match:
+                    print("cusip", price_match.group(1))
             
                 if price_match:
                     entry = {
                         "isin": isin_match.group(1) if isin_match else None,
                         "cusip": cusip_match.group(1) if cusip_match else None,
-                        "price": float(price_match.group(1))
+                        "price": float(price_match.group(1)),
+                        "ticker": f"{ticker_match.group(1)} {ticker_match.group(2)} {ticker_match.group(3)}" if ticker_match else None
                     }
                     if entry["isin"] or entry["cusip"]:
                         result.append(entry)
