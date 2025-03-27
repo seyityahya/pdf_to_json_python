@@ -15,7 +15,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @app.route('/process-pdf', methods=['POST'])
 def process_pdf():
     try:
-        # JSON verisini al
         data = request.get_json()
         if not data:
             return jsonify({"error": "Invalid JSON data"}), 400
@@ -27,22 +26,19 @@ def process_pdf():
         if not base64_file:
             return jsonify({"error": "No file data provided"}), 400
 
-        # Base64 verisini gerçek PDF dosyasına çevir
         try:
             file_data = base64.b64decode(base64_file, validate=True)
         except base64.binascii.Error:
             return jsonify({"error": "Invalid base64 encoding"}), 400
 
-        # Kaydetme işlemi
         file_path = os.path.join(UPLOAD_FOLDER, file_name)
         with open(file_path, "wb") as f:
             f.write(file_data)
 
-        # PDF işleme
         if os.path.exists(file_path):
             processor = PDFProcessor(file_path)
             result = processor.extract_data(template_file)
-            os.remove(file_path)  # Dosyayı işleme sonrası temizle
+            os.remove(file_path)
             return jsonify(result)
         else:
             return jsonify({"error": "Failed to save the file"}), 500
@@ -83,10 +79,9 @@ def process_pdf():
 #     return jsonify({'error': 'Invalid file type'}), 400
 
 if __name__ == '__main__':
-    # Development için 
     app.run(
-        host='127.0.0.1',  # Sadece localhost'tan erişime izin ver
-        port=5000,         # Port numarası
-        debug=True,        # Geliştirme modu açık
-        use_reloader=True  # Kod değişikliklerinde otomatik yeniden başlatma
+        host='127.0.0.1',
+        port=5000,
+        debug=True,
+        use_reloader=True
     )
